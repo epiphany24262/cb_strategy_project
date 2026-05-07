@@ -21,9 +21,6 @@ Thumbs.db
 # Claude
 .claude/
 
-# Supplementary experiment notebook (messy format, not for public repo)
-notebooks/convertible_bond_factor_report_fee_robust.ipynb
-
 # Data file — exceeds GitHub 100MB limit, must use Git LFS or external hosting
 data/cb_data.pq
 
