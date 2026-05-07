@@ -1,0 +1,41 @@
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# nbconvert tmp config
+.ipython_nbconvert_tmp_cfg/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
+
+# Supplementary experiment notebook (messy format, not for public repo)
+notebooks/convertible_bond_factor_report_fee_robust.ipynb
+
+# Data file — exceeds GitHub 100MB limit, must use Git LFS or external hosting
+data/cb_data.pq
+
+# Reference materials (course slides, not project output)
+ref/*.pdf
+ref/*.pptx
+
+# Internal notes (not for public repo)
+report/项目介绍.md
+
+# Intermediate CSVs from param sweeps
+report/*.csv
+
+# Extra PDF exports
+report/*.pdf
