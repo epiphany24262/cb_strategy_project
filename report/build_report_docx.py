@@ -8,7 +8,7 @@ import nbformat
 from docx import Document
 from docx.enum.section import WD_SECTION_START
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT, WD_TABLE_ALIGNMENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING, WD_TAB_ALIGNMENT, WD_TAB_LEADER
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
@@ -288,32 +288,73 @@ def add_cover_page(doc: Document):
 
 
 def add_quick_navigation_page(doc: Document):
+    """Add a formal static table of contents page.
+
+    Page numbers are fixed to the current report layout. If the report body
+    changes substantially, update the page numbers in TOC_ENTRIES accordingly.
+    """
+    toc_entries = [
+        (1, "0.1 主要结论", "3"),
+        (1, "1. 数据与样本过滤", "3"),
+        (2, "1.1 样本背景", "3"),
+        (2, "1.2 样本过滤与可交易性约束", "4"),
+        (1, "2. 单因子分组与 IC/IR", "5"),
+        (2, "2.1 检验口径", "5"),
+        (2, "2.2 dblow：双低因子", "5"),
+        (2, "2.3 bond_prem：债底安全边际补充", "5"),
+        (2, "2.4 alpha_pct_chg_5：正股短期联动修正", "6"),
+        (2, "2.5 因子统计汇总", "7"),
+        (1, "3. 多因子合成与相关性", "8"),
+        (2, "3.1 合成方法", "8"),
+        (2, "3.2 组合敏感性比较", "8"),
+        (1, "4. 缓冲排名加权 BW 主策略", "10"),
+        (2, "4.1 策略结构", "10"),
+        (2, "4.2 绩效指标", "10"),
+        (2, "4.3 多空 20% 对冲验证", "11"),
+        (1, "5. 稳健性分析", "13"),
+        (2, "5.1 调仓频率敏感性", "13"),
+        (2, "5.2 TopN 敏感性", "13"),
+        (2, "5.3 手续费敏感性", "13"),
+        (2, "5.4 年度表现", "14"),
+        (2, "5.5 分阶段表现", "14"),
+        (2, "5.6 执行层对比", "14"),
+        (2, "5.7 可比口径参数网格", "15"),
+        (2, "5.8 滚动验证与执行阈值附录", "16"),
+        (1, "6. 风险与局限性", "18"),
+        (1, "7. 结论", "19"),
+        (1, "附录", "19"),
+        (2, "A.1 候选因子去留总表", "19"),
+        (2, "A.2 turnover_5 单因子补充图", "20"),
+        (2, "A.3 补充实验说明", "20"),
+    ]
+
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p.paragraph_format.space_after = Pt(8)
-    run = p.add_run("报告结构")
+    p.paragraph_format.space_before = Pt(6)
+    p.paragraph_format.space_after = Pt(10)
+    run = p.add_run("目录")
     set_run_font(run, size_pt=18, bold=True, color=ACCENT_COLOR, east_asia_font="黑体")
+    set_paragraph_bottom_border(p, color="000000", size="8")
 
-    sections = [
-        "0.1 主要结论",
-        "1. 数据与样本过滤",
-        "2. 单因子分组与 IC/IR",
-        "3. 多因子合成与相关性",
-        "4. 缓冲排名加权 BW 主策略",
-        "5. 稳健性分析",
-        "6. 风险与局限性",
-        "7. 结论",
-        "附录：候选因子总表、补充图与复现说明",
-    ]
-    for item in sections:
+    for level, title, page in toc_entries:
         p = doc.add_paragraph()
-        p.paragraph_format.space_after = Pt(4)
-        p.paragraph_format.left_indent = Cm(2.0)
-        run = p.add_run(item)
-        set_run_font(run, size_pt=12.5, bold=True, color=BODY_COLOR)
+        p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+        p.paragraph_format.space_after = Pt(2)
+        p.paragraph_format.left_indent = Cm(0 if level == 1 else 0.65)
+        p.paragraph_format.first_line_indent = Cm(0)
+        p.paragraph_format.tab_stops.add_tab_stop(
+            Cm(14.8), WD_TAB_ALIGNMENT.RIGHT, WD_TAB_LEADER.DOTS
+        )
+        run = p.add_run(f"{title}\t{page}")
+        set_run_font(
+            run,
+            size_pt=11.2 if level == 1 else 10.5,
+            bold=(level == 1),
+            color=ACCENT_COLOR if level == 1 else BODY_COLOR,
+            east_asia_font="黑体" if level == 1 else "宋体",
+        )
 
     doc.add_page_break()
-
 
 def add_text_paragraph(doc: Document, text: str, center: bool = False, size_pt: float = 12):
     p = doc.add_paragraph()
